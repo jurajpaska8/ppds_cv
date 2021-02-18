@@ -1,4 +1,4 @@
-from fei.ppds import Thread, Mutex
+from fei.ppds import Mutex
 
 
 class Shared:
