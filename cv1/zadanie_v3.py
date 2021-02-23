@@ -15,7 +15,6 @@ def counter(sh):
         sh.array[sh.counter] += 1
         sh.counter += 1
         sh.mutex.unlock()
-        sh.mutex.unlock()
 
 
 for i in range(10):
