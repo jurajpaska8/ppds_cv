@@ -8,7 +8,7 @@ class SimpleBarrier:
         self.N = N
         self.cnt = 0
         self.mutex = Mutex()
-        self.turnstile = Semaphore(0)
+        self.turnstile = Event()
 
     def wait(self):
         self.mutex.lock()
