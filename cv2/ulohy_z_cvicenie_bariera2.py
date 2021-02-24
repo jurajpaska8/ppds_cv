@@ -41,7 +41,7 @@ def ko(thread_name):
     sleep(randint(1, 10) / 10)
 
 
-def barrier_example(thread_name, mutex, semaphore, shared, N):
+def barrier_example(thread_name, mutex, semaphore1, semaphore2, shared, N):
     """Kazde vlakno vykonava kod funkcie 'barrier_example'.
     Doplnte synchronizaciu tak, aby sa vsetky vlakna pockali
     nielen pred vykonanim funkcie 'ko', ale aj
@@ -54,17 +54,17 @@ def barrier_example(thread_name, mutex, semaphore, shared, N):
         mutex.lock()
         shared.counter += 1
         if shared.counter == N:
-            semaphore.signal()
+            semaphore1.signal()
         mutex.unlock()
-        semaphore.wait()
-        semaphore.signal()
+        semaphore1.wait()
+        semaphore1.signal()
 
         ko(thread_name)
 
         mutex.lock()
         if shared.counter == N:
-            semaphore.wait()
-            shared.counter -= 1
+            semaphore1.wait()
+            shared.counter = 0
         mutex.unlock()
 
 
@@ -74,11 +74,12 @@ a dat ich ako argumenty kazdemu vlaknu, ktore chceme pomocou nich
 synchronizovat.
 """
 mut = Mutex()
-sem = Semaphore(0)
+sem1 = Semaphore(0)
+sem2 = Semaphore(0)
 sh = Shared()
 threads = list()
 for i in range(5):
-    t = Thread(barrier_example, 'Thread %d' % i, mut, sem, sh, 5)
+    t = Thread(barrier_example, 'Thread %d' % i, mut, sem1, sem2, sh, 5)
     threads.append(t)
 
 for t in threads:
