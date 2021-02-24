@@ -45,9 +45,10 @@ def barrier_example(thread_name, mutex, semaphore1, semaphore2, shared, N):
 
         mutex.lock()
         if shared.counter == N:
-            # semaphore1.wait()
+            semaphore2.signal(N)
             shared.counter = 0
         mutex.unlock()
+        semaphore2.wait()
 
 
 """Vytvorime vlakna, ktore chceme synchronizovat.
