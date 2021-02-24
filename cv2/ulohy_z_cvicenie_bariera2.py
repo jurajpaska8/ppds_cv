@@ -11,24 +11,6 @@ from fei.ppds import print
 class Shared:
     def __init__(self):
         self.counter = 0
-        #self.mutex = Mutex()
-
-
-class ReusableBarrier:
-    def __init__(self, N):
-        self.N = N
-        self.cnt = 0
-        self.mutex = Mutex()
-        self.turnstile = Semaphore()
-
-    def wait(self):
-        self.mutex.lock()
-        self.cnt += 1
-        if self.cnt == self.N:
-            self.turnstile.signal()
-        self.mutex.unlock()
-        self.turnstile.wait()
-        self.turnstile.signal()
 
 
 def rendezvous(thread_name):
@@ -54,16 +36,16 @@ def barrier_example(thread_name, mutex, semaphore1, semaphore2, shared, N):
         mutex.lock()
         shared.counter += 1
         if shared.counter == N:
-            semaphore1.signal()
+            semaphore1.signal(N)
         mutex.unlock()
         semaphore1.wait()
-        semaphore1.signal()
+        # semaphore1.signal()
 
         ko(thread_name)
 
         mutex.lock()
         if shared.counter == N:
-            semaphore1.wait()
+            # semaphore1.wait()
             shared.counter = 0
         mutex.unlock()
 
