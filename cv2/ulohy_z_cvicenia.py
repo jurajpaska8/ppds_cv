@@ -8,16 +8,16 @@ class SimpleBarrier:
         self.N = N
         self.cnt = 0
         self.mutex = Mutex()
-        self.turnstile = Event()
+        self.turnstile = Semaphore(0)
 
     def wait(self):
         self.mutex.lock()
         self.cnt += 1
         if self.cnt == self.N:
-            self.turnstile.signal()
+            self.cnt = 0
+            self.turnstile.signal(self.N)
         self.mutex.unlock()
         self.turnstile.wait()
-        self.turnstile.signal()
 
 
 def barrier_example(barrier, thread_id):
@@ -32,11 +32,11 @@ def barrier_example(barrier, thread_id):
 
 
 # priklad pouzitia ADT SimpleBarrier
-sb = SimpleBarrier(5)
-threads = list()
-for i in range(5):
-    t = Thread(barrier_example, sb, i)
-    threads.append(t)
-
-for t in threads:
-    t.join()
+# sb = SimpleBarrier(5)
+# threads = list()
+# for i in range(5):
+#     t = Thread(barrier_example, sb, i)
+#     threads.append(t)
+#
+# for t in threads:
+#     t.join()
