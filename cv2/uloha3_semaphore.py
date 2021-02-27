@@ -20,15 +20,14 @@ def count_member_synchronized(fsh, thread_idx):
     sleep(randint(1, 10) / 10)
     if thread_idx != 0:
         fsh.semaphore_list[thread_idx].wait()
-    if thread_idx + 2 == fsh.index:
-        fsh.count_member(fsh.index)
-        print("ThreadId: %d , fibonacci value: %d " % (thread_idx, fsh.array[thread_idx + 2]))
-        fsh.index += 1
-        if fsh.index < fsh.size:
-            fsh.semaphore_list[thread_idx + 1].signal()
+    fsh.count_member(fsh.index)
+    print("ThreadId: %d , fibonacci value: %d " % (thread_idx, fsh.array[fsh.index]))
+    fsh.index += 1
+    if fsh.index < fsh.size:
+        fsh.semaphore_list[thread_idx + 1].signal()
 
 
-thread_count = 10
+thread_count = 20
 fibonacci_count = thread_count + 2
 fib = FibonacciShared(fibonacci_count)
 threads = list()
