@@ -1,0 +1,30 @@
+Poznamka na uvod:
+Pri commitovani zmien som zostal prihlaseny pod git uctom VRrrrr, ktory pouzivam na trackovanie zmien v timovom projekte TP2.
+To, ze som prihlaseny pod tymto uctom a nie pod svojim osobnym (jurajpaska8@github.com / juraj.paska@siemens...) som si
+vsimol az neskor, ale stale plati, ze kod je commitnuty mnou. Do buducna sa pokusim podobnym veciam vyvarovat.
+
+Komentar:
+Tento priecinok obsahuje subory ulohy_z_cvicenia.py a ulohy_z_cvicenia_bariera2.py, ktore sluzia cisto len na demonstraciu uloh z cviceni.
+Riesenie ulohy s fibonacciho postupnostou je obsiahnute v suboroch uloha2_naive.py a uloha3_semaphore.py.
+
+uloha3_naive.py
+Obsahuje jednuduchy pokus o synchronizaciu N vlakien pri vypocte prvkov fibonacciho postupnosti. Pointa toho naivneho pokusu spociva v tom,
+ze vsetky vlakna v cykle cakaju, pokial nejake z vlakien nenavysi index fibonacciho postupnosti na hodnotu indexu toho daneho vlakna.
+Ak index vlakna == index pola fibonacciho postupnosti, vlakno z cyklu vyskoci a vykona svoj vypocet. Tym je zarucena serializacia tychto
+vlakien. Teda vlakno vykona svoj vypocet, az ked bude skutocne na rade.
+
+uloha3_semaphore.py
+Obsahuje riesenie s pouzitim instancii Event()/Semaphore(0). Pri dlzke fibonacciho postupnosti (n + 2) je vytvorenych n vlakien a taktiez
+n synchronizacnych objektov (Event/Semaphore). Riesenie spociva v pouziti synchronizacneho vzoru signalizacie a to tak, ze kazde vlakno s indexom
+i + 2, caka na dokoncenie vlakna s indexom i + 1, kde i zacina od 0. Taketo riesenie implikuje fakt, ze je vypocitany aj prvok i, inak by s vypoctom
+nezacal prvok i + 1, takze konkretne vlakno ma vzdy k dispozicii predchadzajuce 2 cleny postupnosti. Synchronizacne objekty su uchovane
+v liste dlzky n, kde vlakno s indexom j signalizaciou dava znamenie vlaknu j + 1 tym, ze nastavi priznak v synchronizacnom objekte s indexom j + 1.
+
+Riesenie tejto ulohy teda skor spocivalo v spravnej serializacii a synchronizacii vypoctov (pevne dane poradie vypoctu) a nie v paralelizacii.
+Preto odpovedou na otazku 2 z cvicenia je, ze v tejto ulohe sa da pouzit synchronizacny vzor Signalizacia (vlakno i dava znamenie vlaknu i + 1,
+ze moze pokracovat). Vzory Rendezvous a Bariera nedavaju zmysel v tom, ze vzdy vykonava vypocet len jedno vlakno, preto sa vlakna nemozu cakat,
+pretoze vypocet fibonacciho postupnosti nie je mozne vykonavat paralelne a ani konkurentne. Vzor Vzajomne vylucenie tiez nema rozumne pouzitie,
+z dovodu ze pri n vlaknach, musi vsetkych n vlakien vypocet dokoncit ak chceme mat postupnost n + 2 cisel fibonacciho postupnosti.
+
+Odpovedou na otazku 1 je, ze najmensi pocet synchronizacnych objektov na dokoncenie tejto ulohy je 1. Taketo riesenie je v subore uloha3_naive.py,
+ale nepovazujem ho za vhodne, vzhladom na spinlock vo vsetkych cakajucich vlaknach.
