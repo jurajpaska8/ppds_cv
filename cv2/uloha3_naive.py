@@ -1,4 +1,4 @@
-from fei.ppds import print, Mutex, Thread, Event, Semaphore
+from fei.ppds import print, Mutex, Thread
 from time import sleep
 from random import randint
 
@@ -9,7 +9,6 @@ class FibonacciShared:
         self.array = [0] * size
         self.array[1] = 1
         self.index = 2
-        self.semaphore = Semaphore(0)
         self.mutex = Mutex()
 
 
@@ -27,7 +26,7 @@ def count_member(fsh, idx):
         fsh.index += 1
 
 
-thread_count = 10
+thread_count = 20
 fibonacci_count = thread_count + 2
 fib = FibonacciShared(fibonacci_count)
 threads = list()
