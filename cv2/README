@@ -27,4 +27,5 @@ pretoze vypocet fibonacciho postupnosti nie je mozne vykonavat paralelne a ani k
 z dovodu ze pri n vlaknach, musi vsetkych n vlakien vypocet dokoncit ak chceme mat postupnost n + 2 cisel fibonacciho postupnosti.
 
 Odpovedou na otazku 1 je, ze najmensi pocet synchronizacnych objektov na dokoncenie tejto ulohy je 1. Taketo riesenie je v subore uloha3_naive.py,
-ale nepovazujem ho za vhodne, vzhladom na spinlock vo vsetkych cakajucich vlaknach.
+ale nepovazujem ho za vhodne, vzhladom na spinlock vo vsetkych cakajucich vlaknach. V druhom rieseni (uloha3_semaphore.py) je najmensi pocet synchronizacnych
+objektov pri n vlaknach rovny n - 1. Prve vlakno totiz cakat nemusi a priamo po vypocte signalizuje nasledujucemu vlaknu, ze moze vykonat vypocet.
