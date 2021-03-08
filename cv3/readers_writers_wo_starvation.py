@@ -16,6 +16,9 @@ def reader(document, thread_id, avg_read_time, break_iter):
 
         # reader trying to read document
         document.switch.lock(document.room_empty)
+        if document.access_counter >= break_iter:
+            print("Break")
+        print(f"{thread_id}. Writer after action.")
 
         # reader action
         sleep(randint(0, 2 * avg_read_time) / 1000)
@@ -39,14 +42,14 @@ def writer(document, thread_id, avg_read_time, break_iter):
 
         # writer trying to get access
         document.room_empty.wait()
+        if document.access_counter >= break_iter:
+            print("Break")
+        print(f"{thread_id}. Writer after action.")
 
         # action
         sleep(randint(0, 2 * avg_read_time) / 1000)
         document.access_counter += 1
         document.writers_access += 1
-        if document.access_counter >= break_iter:
-            print("Break")
-        print(f"{thread_id}. Writer after action.")
 
         # writer leaving document
         document.room_empty.signal()
