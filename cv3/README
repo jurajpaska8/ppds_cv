@@ -1,0 +1,10 @@
+Citatelia-Zapisovatelia:
+
+Subory:
+producer_consumer_lecture.py - obsahuje implementaciu funkcii pre producenta a conzumera z prednasky
+light_switch.py - obsahuje implementaciu ADT Lightswitch z prednasky
+stats.py - obsahuje funkciu na vykreslenie grafu - z prednasky
+readers_writers_starvation.py - obsahuje implementaciu problemu Readers-Writers bez riesenia vyhladovenia
+readers_writers_w/o_starvation.py - obsahuje implementaciu problemu Readers-Writers s riesenim vyhladovenia
+uloha5.py - obsahuje vypracovanie ulohy 5
+TODO pdf
