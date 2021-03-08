@@ -5,7 +5,7 @@ vsimol az neskor, ale stale plati, ze kod je commitnuty mnou. Do buducna sa poku
 
 Komentar:
 Tento priecinok obsahuje subory ulohy_z_cvicenia.py a ulohy_z_cvicenia_bariera2.py, ktore sluzia cisto len na demonstraciu uloh z cviceni.
-Riesenie ulohy s fibonacciho postupnostou je obsiahnute v suboroch uloha2_naive.py a uloha3_semaphore.py.
+Riesenie ulohy s fibonacciho postupnostou je obsiahnute v suboroch uloha3_naive.py a uloha3_semaphore.py.
 
 uloha3_naive.py
 Obsahuje jednuduchy pokus o synchronizaciu N vlakien pri vypocte prvkov fibonacciho postupnosti. Pointa toho naivneho pokusu spociva v tom,
@@ -19,6 +19,7 @@ n synchronizacnych objektov (Event/Semaphore). Riesenie spociva v pouziti synchr
 i + 2, caka na dokoncenie vlakna s indexom i + 1, kde i zacina od 0. Taketo riesenie implikuje fakt, ze je vypocitany aj prvok i, inak by s vypoctom
 nezacal prvok i + 1, takze konkretne vlakno ma vzdy k dispozicii predchadzajuce 2 cleny postupnosti. Synchronizacne objekty su uchovane
 v liste dlzky n, kde vlakno s indexom j signalizaciou dava znamenie vlaknu j + 1 tym, ze nastavi priznak v synchronizacnom objekte s indexom j + 1.
+Odkomentovanim riadku 14 vymenime Semaphore() za instancie tried Event(). Program funguje rovnako bez zasahu do aplikacnej logiky vypoctu fib. postupnosti. 
 
 Riesenie tejto ulohy teda skor spocivalo v spravnej serializacii a synchronizacii vypoctov (pevne dane poradie vypoctu) a nie v paralelizacii.
 Preto odpovedou na otazku 2 z cvicenia je, ze v tejto ulohe sa da pouzit synchronizacny vzor Signalizacia (vlakno i dava znamenie vlaknu i + 1,
@@ -27,4 +28,5 @@ pretoze vypocet fibonacciho postupnosti nie je mozne vykonavat paralelne a ani k
 z dovodu ze pri n vlaknach, musi vsetkych n vlakien vypocet dokoncit ak chceme mat postupnost n + 2 cisel fibonacciho postupnosti.
 
 Odpovedou na otazku 1 je, ze najmensi pocet synchronizacnych objektov na dokoncenie tejto ulohy je 1. Taketo riesenie je v subore uloha3_naive.py,
-ale nepovazujem ho za vhodne, vzhladom na spinlock vo vsetkych cakajucich vlaknach.
+ale nepovazujem ho za vhodne, vzhladom na spinlock vo vsetkych cakajucich vlaknach. V druhom rieseni (uloha3_semaphore.py) je najmensi pocet synchronizacnych
+objektov pri n vlaknach rovny n - 1. Prve vlakno totiz cakat nemusi a priamo po vypocte signalizuje nasledujucemu vlaknu, ze moze vykonat vypocet.
