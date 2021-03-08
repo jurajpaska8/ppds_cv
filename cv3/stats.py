@@ -20,14 +20,17 @@ readers = []
 times = []
 writer_accesses = []
 
+# get readers count for plot. Or load second row from uloha5txt
 for r in range(1, 11):
     for _ in range(10):
         readers.append(r)
 
+# get average times for plot. Or load third row from uloha5txt
 for _ in range(10):
     for t in range(1, 11):
         times.append(t * 10)
 
+# load writer accesses from separate file. Or load first row from uloha5txt
 f = open("uloha5_data.txt", "r")
 for x in f:
     writer_accesses.append(float(x.rstrip()))
