@@ -17,13 +17,14 @@ def count_member(fsh, idx):
     while True:
         fsh.mutex.lock()
         if idx == fsh.index:
-            fsh.mutex.unlock()
+            fsh.mutex.unlock() # TODO maybe move to line 27. Better or not ?
             break
         fsh.mutex.unlock()
     if idx == fsh.index:
         fsh.array[idx] = fsh.array[idx - 1] + fsh.array[idx - 2]
         print("ThreadId: %d , fibonacci value: %d " % (idx - 2, fsh.array[idx]))
         fsh.index += 1
+        # fsh.mutex.unlock()
 
 
 thread_count = 20
