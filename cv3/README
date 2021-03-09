@@ -7,4 +7,4 @@ stats.py - obsahuje funkciu na vykreslenie grafu - z prednasky
 readers_writers_starvation.py - obsahuje implementaciu problemu Readers-Writers bez riesenia vyhladovenia
 readers_writers_w/o_starvation.py - obsahuje implementaciu problemu Readers-Writers s riesenim vyhladovenia
 uloha5.py - obsahuje vypracovanie ulohy 5
-TODO pdf
+ppds_zadanie3.pdf - obsahuje komentar k rieseniu
