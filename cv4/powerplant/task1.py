@@ -39,4 +39,22 @@ def sensor(sensor_id, valid_data, turnstile, memory_lock, lightswitch_sensor):
         valid_data.signal()
 
 
+if __name__ == '__main__':
+    vd = Event()
+    turn = Semaphore(1)
+    mem_lock = Semaphore(1)
+    switch_monitor = LightSwitch()
+    switch_sensor = LightSwitch()
+
+    sensor_count = 11
+    monitor_count = 2
+
+    sensors = [Thread(sensor, i, vd, turn, mem_lock, switch_sensor) for i in range(sensor_count)]
+    monitors = [Thread(monitor, i, vd, turn, mem_lock, switch_monitor) for i in range(monitor_count)]
+
+    for s in sensors:
+        s.join()
+
+    for m in monitors:
+        m.join()
 
