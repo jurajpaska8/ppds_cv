@@ -5,8 +5,8 @@ from cv4.powerplant.barrier import BarrierUsingEvent
 from cv4.powerplant.lightswitch import LightSwitch
 
 
-def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor, lightswitch,
-             update_interval_start, update_interval_stop):
+def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor,
+             lightswitch, interval_start, interval_stop):
     while True:
         # sleep
         sleep(randint(50, 60) / 1000)
@@ -15,8 +15,9 @@ def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor, lightswitch,
         # memory lock - operators can not read
         no_sensor.wait()
         # update
-        sleep_time = randint(update_interval_start, update_interval_stop) / 1000
-        print(f"cidlo {sensor_id}: pocet_zapisujucich_cidiel={sensor_counter}, trvanie_zapisu={sleep_time}")
+        sleep_time = randint(interval_start, interval_stop) / 1000
+        print(f"cidlo {sensor_id}: pocet_zapisujucich_cidiel={sensor_counter}"
+              f", trvanie_zapisu={sleep_time}")
         sleep(sleep_time)
         # memory unlock - operators can read
         no_sensor.signal()
@@ -27,7 +28,8 @@ def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor, lightswitch,
         valid_data_barrier.increment_and_wait()
 
 
-def operator(operator_id, valid_data_barrier, no_operator, no_sensor, lightswitch):
+def operator(operator_id, valid_data_barrier, no_operator, no_sensor,
+             lightswitch):
     # wait until all sensors write data at least once
     valid_data_barrier.wait()
     while True:
@@ -39,7 +41,8 @@ def operator(operator_id, valid_data_barrier, no_operator, no_sensor, lightswitc
         no_operator.signal()
         # wait for update
         sleep_time = randint(40, 50) / 1000
-        print(f"monit:{operator_id} pocet_citajucich_monitorov={monitor_cnt}, trvanie_citania={sleep_time}")
+        print(f"monit:{operator_id} pocet_citajucich_monitorov={monitor_cnt}, "
+              f"trvanie_citania={sleep_time}")
         sleep(sleep_time)
 
         # unlock memory - sensors can write
@@ -55,12 +58,16 @@ if __name__ == '__main__':
     lightswitch_sensor = LightSwitch()
     valid_data = BarrierUsingEvent(sensor_cnt)
 
-    monitors = [Thread(operator, i, valid_data, turn, mem_lock, lightswitch_operator) for i in range(operator_cnt)]
+    monitors = [Thread(operator, i, valid_data, turn, mem_lock,
+                       lightswitch_operator)
+                for i in range(operator_cnt)]
     # p, t sensors
-    sensors = [Thread(sensor_h, i, valid_data, turn, mem_lock, lightswitch_sensor, 10, 20)
+    sensors = [Thread(sensor_h, i, valid_data, turn, mem_lock,
+                      lightswitch_sensor, 10, 20)
                for i in range(sensor_cnt - 1)]
     # h sensor
-    sensors.append(Thread(sensor_h, sensor_cnt - 1, valid_data, turn, mem_lock, lightswitch_sensor, 20, 25))
+    sensors.append(Thread(sensor_h, sensor_cnt - 1, valid_data, turn, mem_lock,
+                          lightswitch_sensor, 20, 25))
 
     for s in sensors:
         s.join()
