@@ -19,12 +19,12 @@ def sensor_p_t(sensor_id, valid_data_barrier, turnstile, memory_lock):  # TODO
         valid_data_barrier.increment_and_wait()
 
 
-def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor):
+def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor, lightswitch):
     while True:
         # sleep
         sleep(randint(50, 60) / 1000)
         # lock turnstile
-        no_operator.wait()
+        lightswitch.lock(no_operator)
         # memory lock - operators can not read
         no_sensor.wait()
         # update
@@ -35,7 +35,7 @@ def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor):
         no_sensor.signal()
 
         # unlock turnstile
-        no_operator.signal()
+        lightswitch.unlock(no_operator)
         # signalization - write done
         valid_data_barrier.increment_and_wait()
 
@@ -65,10 +65,11 @@ if __name__ == '__main__':
     turn = Semaphore(1)
     mem_lock = Semaphore(1)
     lightswitch_operator = LightSwitch()
+    lightswitch_sensor = LightSwitch()
     valid_data = BarrierUsingEvent(sensor_cnt)
 
     monitors = [Thread(operator, i, valid_data, turn, mem_lock, lightswitch_operator) for i in range(operator_cnt)]
-    sensors = [Thread(sensor_h, i, valid_data, turn, mem_lock) for i in range(sensor_cnt)]
+    sensors = [Thread(sensor_h, i, valid_data, turn, mem_lock, lightswitch_sensor) for i in range(sensor_cnt)]
 
     for s in sensors:
         s.join()
