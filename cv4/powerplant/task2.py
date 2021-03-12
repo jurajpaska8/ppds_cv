@@ -5,31 +5,17 @@ from cv4.powerplant.barrier import BarrierUsingEvent
 from cv4.powerplant.lightswitch import LightSwitch
 
 
-def sensor_p_t(sensor_id, valid_data_barrier, turnstile, memory_lock):  # TODO
-    while True:
-        # every time pass turnstile
-        turnstile.wait()
-        turnstile.signal()
-
-        # sleep
-        sleep(randint(50, 60) / 1000)
-        # update
-        sleep(randint(10, 20) / 1000)
-
-        valid_data_barrier.increment_and_wait()
-
-
 def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor, lightswitch):
     while True:
         # sleep
         sleep(randint(50, 60) / 1000)
         # lock turnstile
-        lightswitch.lock(no_operator)
+        sensor_counter = lightswitch.lock(no_operator)
         # memory lock - operators can not read
         no_sensor.wait()
         # update
         sleep_time = randint(20, 25) / 1000
-        print(f"cidlo {sensor_id}: pocet_zapisujucich_cidiel=TODO, trvanie_zapisu={sleep_time}")  # TODO
+        print(f"cidlo {sensor_id}: pocet_zapisujucich_cidiel={sensor_counter}, trvanie_zapisu={sleep_time}")
         sleep(sleep_time)
         # memory unlock - operators can read
         no_sensor.signal()
