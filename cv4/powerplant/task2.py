@@ -5,7 +5,8 @@ from cv4.powerplant.barrier import BarrierUsingEvent
 from cv4.powerplant.lightswitch import LightSwitch
 
 
-def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor, lightswitch):
+def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor, lightswitch,
+             update_interval_start, update_interval_stop):
     while True:
         # sleep
         sleep(randint(50, 60) / 1000)
@@ -14,7 +15,7 @@ def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor, lightswitch)
         # memory lock - operators can not read
         no_sensor.wait()
         # update
-        sleep_time = randint(20, 25) / 1000
+        sleep_time = randint(update_interval_start, update_interval_stop) / 1000
         print(f"cidlo {sensor_id}: pocet_zapisujucich_cidiel={sensor_counter}, trvanie_zapisu={sleep_time}")
         sleep(sleep_time)
         # memory unlock - operators can read
@@ -55,7 +56,11 @@ if __name__ == '__main__':
     valid_data = BarrierUsingEvent(sensor_cnt)
 
     monitors = [Thread(operator, i, valid_data, turn, mem_lock, lightswitch_operator) for i in range(operator_cnt)]
-    sensors = [Thread(sensor_h, i, valid_data, turn, mem_lock, lightswitch_sensor) for i in range(sensor_cnt)]
+    # p, t sensors
+    sensors = [Thread(sensor_h, i, valid_data, turn, mem_lock, lightswitch_sensor, 10, 20)
+               for i in range(sensor_cnt - 1)]
+    # h sensor
+    sensors.append(Thread(sensor_h, sensor_cnt - 1, valid_data, turn, mem_lock, lightswitch_sensor, 20, 25))
 
     for s in sensors:
         s.join()
