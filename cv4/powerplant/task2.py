@@ -29,7 +29,7 @@ def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor):
         no_sensor.wait()
         # update
         sleep_time = randint(20, 25) / 1000
-        print(f"cidlo {sensor_id}: pocet_zapisujucich_cidiel=TODO, trvanie_zapisu={sleep_time}") # TODO
+        print(f"cidlo {sensor_id}: pocet_zapisujucich_cidiel=TODO, trvanie_zapisu={sleep_time}")  # TODO
         sleep(sleep_time)
         # memory unlock - operators can read
         no_sensor.signal()
@@ -46,9 +46,10 @@ def operator(operator_id, valid_data_barrier, no_operator, no_sensor, lightswitc
     while True:
         # turnstile
         no_operator.wait()
-        no_operator.signal()
         # lock memory - sensors can not write
         monitor_cnt = lightswitch.lock(no_sensor)
+        # free turnstile
+        no_operator.signal()
         # wait for update
         sleep_time = randint(40, 50) / 1000
         print(f"monit:{operator_id} pocet_citajucich_monitorov={monitor_cnt}, trvanie_citania={sleep_time}")
