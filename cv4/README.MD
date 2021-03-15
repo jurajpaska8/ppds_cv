@@ -1,4 +1,5 @@
 Súbory:
+
     philisopher/phil_foreman.py - obsahuje implementáciu problemu večerajúcich filozofov z prednášky a cvičenia s použitím čašníka (foreman)
     powerplant/task1.pu - obsahuje implementáciu príkladu atómovej elektrárne 1 z cvičenia
     powerplant/task2.py - obsahuje implementáciu príkladu atómovej elektrárne 2 z cvičenia
@@ -8,6 +9,7 @@ Súbory:
                         - to sa využíva pri čakaní vlákien monitora - neovplyvňujú counter
 
 Atómová elektráreň 2
+
     Úloha 1: Urobte analýzu, o aké typy synchronizačných úloh (prípadne ich modifikácie či kombinácie) sa v tejto úlohe jedná.
         Riešenie: 
             - ide o úlohu vzájomného vylúčenia procesov, kde operátori (monitori) predstavujú jednu kategóriu a čislá (senzory) druhú
