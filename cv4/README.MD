@@ -17,6 +17,10 @@ Atómová elektráreň 2
             každé čislo má vlastné miesto v pamäti do ktorého píše hodnoty
             - zámok teda existuje len nad celou pamäťou a to kvôli tomu, aby sme zabezpečili vzájomné vylúčenie procesov
             - takže buď čitatelia čítajú, alebo zapisovatelia zapisujú
+            - v úlohe bola implementovaná priorita zapisovateľov a to tak, že ak zapisovateľ drží zámok a nejaký ďalší
+            zapisovateľ príde do fronty na turniket, tak môže obehnúť čakajúcich operátorov
+            - použitie turniketu nám taktiež zaručuje, že zapisovatelia nevyhladovejú, vzhľadom na počet operátorov a 
+            ich neustále pokusy o prístup do pamäte
 
     Úloha 2: Presne namapujte vami zvolené synchronizačné úlohy (primitívy) na jednotlivé časti zadania.
         Riešenie:
@@ -76,4 +80,9 @@ Atómová elektráreň 2
                 lightswitch_senzor.unlock(turniket)
                 # ak bol zapis uspesny, inkrementuj pocitadlo a cakaj
                 bariera.incrementuj_a_cakaj()
-                    
+           
+    Úloha 4: Napíšte program, ktorý bude vhodne modelovať túto synchronizačnú úlohu.
+        Riešenie: v súbore powerplant/task2.py
+
+    Úloha 5: Výpisy
+        Riešenie: operátor a aj sensor obsahujú výpisy na určenom mieste
