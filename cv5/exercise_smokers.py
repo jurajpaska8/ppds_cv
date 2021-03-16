@@ -1,7 +1,7 @@
 from time import sleep
 from random import randint
 
-from fei.ppds import Semaphore, Thread
+from fei.ppds import Semaphore, Thread, Mutex, print
 
 
 class Shared:
@@ -12,12 +12,23 @@ class Shared:
 
         self.agentSem = Semaphore(1)
 
+        self.isTobacco = False
+        self.isPaper = False
+        self.isMatch = False
+        self.mutex = Mutex()
 
-def make_cigarette():
+        self.smokerMatch = Semaphore(0)
+        self.smokerPaper = Semaphore(0)
+        self.smokerTobacco = Semaphore(0)
+
+
+def make_cigarette(who):
+    print(f"    makes cig: {who}")
     sleep(randint(0, 10) / 100)
 
 
-def smoke():
+def smoke(who):
+    print(f"    smokes cig: {who}")
     sleep(randint(0, 10) / 100)
 
 
@@ -56,42 +67,81 @@ def smoker_match(shared):
     while True:
         sleep(randint(0, 10) / 100)
 
-        shared.paper.wait()
-        print("smoker M : paper taken")
-        shared.tobacco.wait()
-        print("smoker M : tobacco taken")
+        shared.smokerMatch.wait()
 
-        make_cigarette()
+        make_cigarette("smoker match")
         shared.agentSem.signal()
-        smoke()
+        smoke("smoker match")
 
 
 def smoker_tobacco(shared):
     while True:
         sleep(randint(0, 10) / 100)
 
-        shared.match.wait()
-        print("smoker T : match taken")
-        shared.paper.wait()
-        print("smoker T : paper taken")
+        shared.smokerTobacco.wait()
 
-        make_cigarette()
+        make_cigarette("smoker tobacco")
         shared.agentSem.signal()
-        smoke()
+        smoke("smoker tobacco")
 
 
 def smoker_paper(shared):
     while True:
         sleep(randint(0, 10) / 100)
 
-        shared.tobacco.wait()
-        print("smoker P : tobacco taken")
-        shared.match.wait()
-        print("smoker P : match taken")
+        shared.smokerPaper.wait()
 
-        make_cigarette()
+        make_cigarette("smoker paper")
         shared.agentSem.signal()
-        smoke()
+        smoke("smoker paper")
+
+
+def dealer_tobacco(shared):
+    while True:
+        shared.tobacco.wait()
+
+        shared.mutex.lock()
+        if shared.isPaper:
+            shared.isPaper = False
+            shared.smokerMatch.signal()
+        elif shared.isMatch:
+            shared.isMatch = False
+            shared.smokerPaper.signal()
+        else:
+            shared.isTobacco = True
+        shared.mutex.unlock()
+
+
+def dealer_match(shared):
+    while True:
+        shared.match.wait()
+
+        shared.mutex.lock()
+        if shared.isPaper:
+            shared.isPaper = False
+            shared.smokerTobacco.signal()
+        elif shared.isTobacco:
+            shared.isTobacco = False
+            shared.smokerPaper.signal()
+        else:
+            shared.isMatch = True
+        shared.mutex.unlock()
+
+
+def dealer_paper(shared):
+    while True:
+        shared.paper.wait()
+
+        shared.mutex.lock()
+        if shared.isMatch:
+            shared.isMatch = False
+            shared.smokerTobacco.signal()
+        elif shared.isTobacco:
+            shared.isTobacco = False
+            shared.smokerMatch.signal()
+        else:
+            shared.isPaper = True
+        shared.mutex.unlock()
 
 
 def run_model():
@@ -99,12 +149,16 @@ def run_model():
 
     smokers = [Thread(smoker_match, shared), Thread(smoker_tobacco, shared), Thread(smoker_paper, shared)]
     agents = [Thread(agent_1, shared), Thread(agent_2, shared), Thread(agent_3, shared)]
+    dealers = [Thread(dealer_paper, shared), Thread(dealer_match, shared), Thread(dealer_tobacco, shared)]
 
     for s in smokers:
         s.join()
 
     for a in agents:
         a.join()
+
+    for d in dealers:
+        d.join()
 
 
 if __name__ == '__main__':
