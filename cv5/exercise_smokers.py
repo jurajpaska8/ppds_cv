@@ -12,9 +12,9 @@ class Shared:
 
         self.agentSem = Semaphore(1)
 
-        self.isTobacco = False
-        self.isPaper = False
-        self.isMatch = False
+        self.isTobacco = 0
+        self.isPaper = 0
+        self.isMatch = 0
         self.mutex = Mutex()
 
         self.smokerMatch = Semaphore(0)
@@ -102,13 +102,13 @@ def dealer_tobacco(shared):
 
         shared.mutex.lock()
         if shared.isPaper:
-            shared.isPaper = False
+            shared.isPaper -= 1
             shared.smokerMatch.signal()
         elif shared.isMatch:
-            shared.isMatch = False
+            shared.isMatch -= 1
             shared.smokerPaper.signal()
         else:
-            shared.isTobacco = True
+            shared.isTobacco += 1
         shared.mutex.unlock()
 
 
@@ -118,13 +118,13 @@ def dealer_match(shared):
 
         shared.mutex.lock()
         if shared.isPaper:
-            shared.isPaper = False
+            shared.isPaper -= 1
             shared.smokerTobacco.signal()
         elif shared.isTobacco:
-            shared.isTobacco = False
+            shared.isTobacco -= 1
             shared.smokerPaper.signal()
         else:
-            shared.isMatch = True
+            shared.isMatch += 1
         shared.mutex.unlock()
 
 
@@ -134,13 +134,13 @@ def dealer_paper(shared):
 
         shared.mutex.lock()
         if shared.isMatch:
-            shared.isMatch = False
+            shared.isMatch -= 1
             shared.smokerTobacco.signal()
         elif shared.isTobacco:
-            shared.isTobacco = False
+            shared.isTobacco -= 1
             shared.smokerMatch.signal()
         else:
-            shared.isPaper = True
+            shared.isPaper += 1
         shared.mutex.unlock()
 
 
