@@ -36,7 +36,7 @@ def agent_1(shared):
     while True:
         # poprehadzuj - aby nebolo rovnake poradie
         sleep(randint(0, 10) / 100)
-        shared.agentSem.wait()
+        #shared.agentSem.wait()
         print("agent: tobacco, paper")
         shared.tobacco.signal()
         shared.paper.signal()
@@ -47,7 +47,7 @@ def agent_2(shared):
     while True:
         # poprehadzuj - aby nebolo rovnake poradie
         sleep(randint(0, 10) / 100)
-        shared.agentSem.wait()
+        #shared.agentSem.wait()
         print("agent: paper, match")
         shared.paper.signal()
         shared.match.signal()
@@ -57,7 +57,7 @@ def agent_3(shared):
     while True:
         # poprehadzuj - aby nebolo rovnake poradie
         sleep(randint(0, 10) / 100)
-        shared.agentSem.wait()
+        #shared.agentSem.wait()
         print("agent: tobacco, match")
         shared.tobacco.signal()
         shared.match.signal()
