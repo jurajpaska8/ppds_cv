@@ -5,8 +5,8 @@ from cv4.powerplant.barrier import BarrierUsingEvent
 from cv4.powerplant.lightswitch import LightSwitch
 
 
-def sensor_h(sensor_id, valid_data_barrier, no_operator, no_sensor,
-             lightswitch, interval_start, interval_stop):
+def sensor(sensor_id, valid_data_barrier, no_operator, no_sensor,
+           lightswitch, interval_start, interval_stop):
     while True:
         # sleep
         sleep(randint(50, 60) / 1000)
@@ -62,11 +62,11 @@ if __name__ == '__main__':
                        lightswitch_operator)
                 for i in range(operator_cnt)]
     # p, t sensors
-    sensors = [Thread(sensor_h, i, valid_data, turn, mem_lock,
+    sensors = [Thread(sensor, i, valid_data, turn, mem_lock,
                       lightswitch_sensor, 10, 20)
                for i in range(sensor_cnt - 1)]
     # h sensor
-    sensors.append(Thread(sensor_h, sensor_cnt - 1, valid_data, turn, mem_lock,
+    sensors.append(Thread(sensor, sensor_cnt - 1, valid_data, turn, mem_lock,
                           lightswitch_sensor, 20, 25))
 
     for s in sensors:
