@@ -1,0 +1,139 @@
+Súbory:
+    exercise_smokers.py - obsahuje implementáciu problému fajčiarov (3 verzie - 3 commity) z prednášky
+    exercise_savage.py - obsahuje implementáciu úlohy 1 problému večerajúcich divochov z cvičenia
+    exercise_savage_2.puý - obsahuje implementáciu úlohy 2 problému večerajúcich divochov
+
+Riešenie úlohy 2:
+    1) Zistite, o akú kombináciu synchronizačných problémov sa jedná,
+    Riešenie:
+            V riešení zadania sa vyskytuje synchronizačný vzor Signalizácie, kde jeden z divochov signalizuje kuchárom,
+        že hrniec je prázdny. Rovnako signalizuje jeden z kuchárov divochom, že hrniec naplnili a divosi môžu pokračovať
+        v jedení.
+            Taktiež je použití synchronizačný vzor Vzájomného vylúčenia, keď počas prístupu jednej z kategórii k hrncu,
+        druhá kategória musí čakať. Teda ak divosi jedia - kuchári spia. Ak kuchári varia a vkladajú do hrnca porcie,
+        tak divosi čakajú, dokým nie je hrniec znovu plný.
+            Divosi začínajú vždy jesť naraz, avšak to nie je podmienkou. Na túto synchronizáciu boli použité dve
+        jednoduché bariéry.
+            V riešení je implementované varenie viacerých kuchárov naraz. Všetci kuchári začnú po prebudení variť(varia
+        naraz) a po dokončení varenia sa snažia pristúpiť k naplneniu hrnca cez zámok kuchárov. Zámok použitý vo vlákne
+        divochov nebol vo vlákne kuchárov použitý z dôvodu, že divoch ktorý prebudil kuchárov ho stále drží, aby nebol
+        predbehnutý a aby sa nesnažilo prebudiť kuchárov viac divochov. Dá sa povedať, že čaká s rukou v hrnci, zatiaľ
+        čo kuchári po jednom nalievajú už uvarené porcie(varili naraz, dávajú po jednom) do hrnca. (rovnako ako v kóde
+        z cvičenia - kuchár nalieva porcie, zatiaľ čo divoch drží zámok).
+            Prebudenie kuchárov bolo zrealizované cez "nabitie semaforu" a teda divoch, ktorý zistil, že hrniec je
+        prázdny, zavolal nad semaforom emptyPot signal s parametrom rovným počtu kuchárov. Takto mohli začať všetci variť.
+        Rovnako by sa dala takáto synchronizácia dosiahnúť použitím udalosti(Event), avšak kuchár, ktorý by naplnil
+        hrniec by musel vymazať príznak nastatia udalostí.
+            Teda kuchári navaria a po jednom vkladajú do hrnca. Pritom kontrolujú, aký stav má, alebo bude mať hrniec.
+        Ak po vložení porcii do hrnca nebude stále plný, tak kuchár len vyleje porcie a počká 1 sekundu (oddych). Ak
+        by po vložení do hrnca bolo porcii ako je jeho kapacita, tak ho doplní do veľkosti kapacity a ostatné porcie
+        vyhodí. Ak už je hrniec plný, tak celú dávku vyhodí. Každému kuchárovi sa dá nastaviť, koľko porcii môže na jedno
+        varenie vyprodukovať cez parameter cook_cap.
+
+    2) napíšte pseudokód riešenia
+        Riešenie:
+        def init():
+            pocet_divochov = 10
+            pocet_kucharov = 2
+            kapacita_kuchara = 5
+            kapacita_hrnca = 13
+            porcie := 0
+
+            mutex_kuchari = Mutex()
+            mutex_divosi = Mutex()
+
+            plny_hrniec := Semaphore(0)
+            prazdny_hrniec := Semaphore(0)
+
+            barriera1 := SimpleBarrier()
+            barriera2 := SimpleBarrier()
+
+            for id in [0, 1, 2, ..., pocet_divochov]:
+                create_and_run_thread(savage, id)
+
+            for id in [0, 1, 2, ..., pocet_kucharov]:
+                create_and_run_thread(cook, id)
+
+        def getServingFromPot(id):
+            print("divoch %2d: beriem si porciu", id)
+            porcie := porcie - 1
+
+        def savage(id):
+            while True:
+                # vsetci sa pockaju na zaciatku
+                barriera1.wait(id)
+
+                mutex_divosi.lock()
+                print("divoch %2d: pocet zostavajucich porcii v hrnci je %2d" % (id, porcie))
+                # ak je hniec prazdny, prebud kucharov a cakaj dokym nenavaria
+                if porcie == 0:
+                    print("divoch %2d: budim kuchara" % savage_id)
+                    prazdny_hrniec.signal(pocet_kucharov)
+                    plny_hrniec.wait()
+                # zober porciu a vyskoc zo serializacie - jest mozu konkurentne
+                getServingFromPot(savage_id)
+                mutex_divosi.unlock()
+
+                # konkurentne vykonavany kod
+                print("divoch %2d: hodujem" % savage_id)
+
+                # vsetci sa pockaju na konci - posledny otvori barieru a mozu ist znova
+                barriera1.wait(id)
+
+
+        def cook(id):
+            while True:
+                # cakaj dokym nie je prazdny hrniec
+                prazdny_hrniec.wait()
+                # varenie - naraz
+                print(f"kuchar {id}: idem varit. Obsah hrnca = {porcie}")
+                sleep(trvanie_varenia)
+
+                # vkladaju do hrnca po jednom - serializacia
+                mutex_kuchar.lock()
+
+                # ak je plny hrniec, tak navarene vyhod a nevkladaj do hrnca
+                if porcie == kapacita_hrnca:
+                    print(f"kuchar {id} :hrniec uz je plny. Vyhadzujem navarene")
+
+                # ak ani po vlozeni porcii do hrnca nebude plny - vloz do hrnca
+                elif (porcie + kapacita_kuchara) < kapacita_hrnca:
+                    print(f"kuchar {id}: davam do hrnca")
+                    # vloz do hrnca
+                    porcie += kapacita_kuchara
+                    # a oddychuj
+                    sleep(1)
+
+                # ak hrniec nie je plny, ale nezmesti sa tam vsetko co navaril kuchar
+                # hrniec dopln do kapacity a ostatne vyhod
+                else:
+                    print(f"kuchar {id}: dovarene. Obsah hrnca = {kapacita_hrnca}, "
+                          f"Vyhodil som {porcie + kapacita_kuchara - kapacita_hrnca}")
+                    # nastav porcie na maximum
+                    porcie = kapacita_hrnca
+
+                # ak je aktualny kuchar posledny v iteracii (z tych co presli turniketom)
+                if (posledny_kuchar):
+                    print(f"Posledny kuchar:Porcii = {porcie} z {kapacita_hrnca}")
+                    # ak hrniec nie je stale plny - nabi turniket znovu
+                    if porcie < kapacita_hrnca:
+                        prazdny_hrniec.signal(pocet_kucharov)
+                    # inak daj signal divochom, ze mozu jest
+                    else:
+                        plny_hrniec.signal()
+
+                mutex_kuchar.unlock()
+
+    3) výpisy
+        Riešenie: sú umiestnené v kóde
+
+    4) zvoľte vhodne charakteristiky, na ktorých sa model zakladá (počty vlákien, časovania aktivít, hodnoty ďalších premenných).
+        Riešenie:
+            V implementovanom zadaní je dôležité správne nastaviť parametre, aby bol model efektívny.
+        Pri zlom nastavení počtu kuchárov a ich kapacít, je možné, že po kaźdom varení sa porcie, ktoré sa nezmestia
+        do hrnca budú musieť vyhodiť. Preto, ak prepokladáme, že každý kuchár naraz uvarí P porcií a máme C kuchárov pri
+        kapacite hrnca POT_CAP, tak volíme také parametre P a C, aby platilo I*(P*C) >= POT_CAP, a zároveň bol rozdiel
+        týchto čísel čo najmenší, ideálne 0. I vyberáme z intervalu 1 až 1 + POT_CAP/(P*C). Teda hľadáme také číslo
+        P*C, ktorého kladný násobok modulo POT_CAP je čo najmenší.
+
+
