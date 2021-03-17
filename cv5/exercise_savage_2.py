@@ -21,48 +21,73 @@ class Shared:
 
 
 def eat(sid):
+    # eating takes same time
     print(f"divoch {sid}: hodujem")
     sleep(0.2 + randint(0, 3) / 10)
 
 
 def get_serving_from_pot(shared, sid):
-    print(f"divoch {sid}: beriem porciu. Po zobrati zostane {shared.servings - 1} porcii")
+    # taking serving takes zero time
+    print(f"divoch {sid}: beriem porciu. Zostane {shared.servings - 1} porcii")
     shared.servings -= 1
 
 
-def cook(shared, cid, M):
+def cook(shared, cid, cook_cap):
+    # shuffle cooks before hitting semaphore
     sleep(randint(0, 10) / 1000)
+
     while True:
-        sleep(randint(0, 10) / 1000)
+        # wait until pot is empty
         shared.emptyPot.wait()
-        print(f"kuchar {cid}: idem varit. Aktualne je v hrnci = {shared.servings}")
+        # cooking takes some time
+        print(f"kuchar {cid}: idem varit. Obsah hrnca = {shared.servings}")
         sleep(0.5 + randint(0, 3) / 10)
-        if (shared.servings + M) < pot_capacity:
-            shared.servings += M
+
+        # if current cook does not fill pot
+        if (shared.servings + cook_cap) < pot_capacity:
+            # put servings into pot
+            shared.servings += cook_cap
+            # and give signal to another cook
             shared.emptyPot.signal()
+            # then rest
             sleep(1)
+        # if current cook fills pot
         else:
+            # avoid "pot overflow" by setting servings count to pot capacity
             shared.servings = pot_capacity
-            print(f"kuchar {cid}: dovarene. Aktualne je v hrnci = {shared.servings}")
+            print(f"kuchar {cid}: dovarene. Obsah hrnca = {shared.servings}")
+            # and give signal to savages
             shared.fullPot.signal()
 
 
 def savage(shared, sid):
+    # shuffle savage before hitting barrier
     sleep(randint(0, 10) / 1000)
+
     while True:
+        # wait until all savages came to dinner
         shared.barrier1.wait(sid,
-                             print_each="divoch %2d: prisiel som na veceru, uz nas je %2d",
-                             print_last="divoch %2d: uz sme vsetci, mozme vecerat")
+                             print_each="divoch %2d:uz nas je %2d",
+                             print_last="divoch %2d:sme vsetci, mozme vecerat")
+        # serialize access to the pot
         shared.mutex.lock()
         print(f"divoch {sid}: pocet zostavajucich porcii = {shared.servings}")
+
+        # if pot is empty
         if shared.servings == 0:
             print(f"divoch {sid}: budim kuchara")
+            # wake up cook
             shared.emptyPot.signal()
+            # wait until they fill the pot
             shared.fullPot.wait()
+
+        # if there is at least one serving, grab it and unlock mutex
         get_serving_from_pot(shared, sid)
         shared.mutex.unlock()
+        # eating can be done out of serialized part
         eat(sid)
-        shared.barrier2.wait(sid, print_last="****divoch %2d dokoncil cyklus - otvara barieru****")
+        # wait until all savages finish dinner
+        shared.barrier2.wait(sid, print_last="***divoch %2d otvara barieru***")
 
 
 def run():
