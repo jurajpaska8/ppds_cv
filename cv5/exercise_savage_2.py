@@ -5,7 +5,7 @@ from exercise_savage import SimpleBarrier
 
 savages_count = 10
 pot_capacity = 13
-cooks_count = 3
+cooks_count = 2
 cook_capacity = 5
 
 
@@ -13,11 +13,14 @@ class Shared:
     def __init__(self):
         self.servings = 0
         self.mutex = Mutex()
+        self.mutex_cook = Mutex()
         self.emptyPot = Semaphore(0)
         self.fullPot = Semaphore(0)
 
         self.barrier1 = SimpleBarrier(savages_count)
         self.barrier2 = SimpleBarrier(savages_count)
+
+        self.cnt = 0
 
 
 def eat(sid):
@@ -39,25 +42,42 @@ def cook(shared, cid, cook_cap):
     while True:
         # wait until pot is empty
         shared.emptyPot.wait()
-        # cooking takes some time
+        # cooking takes some time - cooks cook simultaneously
         print(f"kuchar {cid}: idem varit. Obsah hrnca = {shared.servings}")
         sleep(0.5 + randint(0, 3) / 10)
 
+        # serialize putting serving to pot
+        shared.mutex_cook.lock()
+
+        # if pot is already filled
+        if shared.servings == pot_capacity:
+            print(f"kuchar {cid} :hrniec uz je plny. Vyhadzujem navarene")
         # if current cook does not fill pot
-        if (shared.servings + cook_cap) < pot_capacity:
+        elif (shared.servings + cook_cap) < pot_capacity:
+            print(f"kuchar {cid}: davam do hrnca")
             # put servings into pot
             shared.servings += cook_cap
-            # and give signal to another cook
-            shared.emptyPot.signal()
             # then rest
             sleep(1)
         # if current cook fills pot
         else:
+            print(f"kuchar {cid}: dovarene. Obsah hrnca = {pot_capacity}, "
+                  f"Vyhodil som {shared.servings + cook_cap - pot_capacity}")
             # avoid "pot overflow" by setting servings count to pot capacity
             shared.servings = pot_capacity
-            print(f"kuchar {cid}: dovarene. Obsah hrnca = {shared.servings}")
-            # and give signal to savages
-            shared.fullPot.signal()
+
+        shared.cnt += 1
+        if shared.cnt == cooks_count:
+            print(f"Posledny kuchar:Porcii = {shared.servings}/{pot_capacity}")
+            shared.cnt = 0
+            if shared.servings < pot_capacity:
+                # iterate again if all cooks can not fill pot in one iter
+                shared.emptyPot.signal(cooks_count)
+            else:
+                # give signal to savages
+                shared.fullPot.signal()
+
+        shared.mutex_cook.unlock()
 
 
 def savage(shared, sid):
@@ -76,8 +96,8 @@ def savage(shared, sid):
         # if pot is empty
         if shared.servings == 0:
             print(f"divoch {sid}: budim kuchara")
-            # wake up cook
-            shared.emptyPot.signal()
+            # wake up all cooks
+            shared.emptyPot.signal(cooks_count)
             # wait until they fill the pot
             shared.fullPot.wait()
 
