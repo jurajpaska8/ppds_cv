@@ -14,6 +14,7 @@ class Shared:
         self.mol_count = 0
 
         self.mutex = Mutex()
+        self.mol_count_mutex = Mutex()
         self.barrier = SimpleBarrier(atoms_count)
         self.oxy_queue = Semaphore(0)
         self.hydro_queue = Semaphore(0)
@@ -58,12 +59,17 @@ def oxygen(shared, idx):
     shared.oxy_queue.wait()
     bond(f"Kyslik {idx}: Vytvaram molekulu id = {shared.mol_count}")
     shared.barrier.wait()
+    shared.mutex.unlock()
+
+    shared.mol_count_mutex.lock()
+    shared.mol_count += 1
+    shared.mol_count_mutex.unlock()
 
 
 def create_and_run_threads():
     sh = Shared(3)
-    hydrogens = [Thread(hydrogen, sh, i) for i in range(2)]
-    oxygens = [Thread(oxygen, sh, i) for i in range(1)]
+    hydrogens = [Thread(hydrogen, sh, i) for i in range(50)]
+    oxygens = [Thread(oxygen, sh, i) for i in range(25)]
 
     for h in hydrogens:
         h.join()
