@@ -1,0 +1,9 @@
+Úloha - vytváranie molekúl vody:
+Riešenie:
+    V zadaní je implementované riešenie úlohy vytvárania molekúl vody. Každý atóm má svoje vlákno,
+    ktoré je ukončené potom, čo sú atómy spojené do molekuly vody. V riešení bol použitý synchronizačný
+    vzor bariéry, keď pred ukončením každého vlákna (aj kyslíka aj vodíka), sa vlákna čakajú, až pokým
+    nie sú tri na bariére. To, že to bude práve kombinácia 2 vodíky a 1 kyslík rieši signalizačný
+    vzor signalizácie (bariéra rieši čisto iba počet vlákien) a to tak, že ak počet vodíkov a kyslíkov
+    dosiahol stanovený počet (2 a 1), tak sa na semafore zavolá signal(2/1) a je uvoľnených 2(vodík)+ 1(kyslík)
+    vlákien, ktoré prejdú cez bariéru a vytvoria molekulu.
