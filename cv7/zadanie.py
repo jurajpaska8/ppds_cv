@@ -1,6 +1,3 @@
-from queue import Queue
-
-
 class Task:
     t_id = 0
     t_priority = 0
@@ -18,29 +15,39 @@ class Task:
 
 class Scheduler:
     def __init__(self):
-        self.ready = Queue()
-        self.taskmap = {}
+        self.ready = []
 
     def new(self, target, priority):
         newtask = Task(target, priority)
-        self.taskmap[newtask.tid] = newtask
         self.schedule(newtask)
         return newtask.tid
 
-    def exit(self, task):
-        print("Task %d Ukonceny" % task.tid)
-        del self.taskmap[task.tid]
-
     def schedule(self, task):
-        self.ready.put(task)
+        self.ready.append(task)
+
+    def select_highest_priority_id(self):
+        p = -1
+        t_id = -1
+        for t in self.ready:
+            if t.t_priority > p:
+                p = t.t_priority
+                t_id = t.tid
+        return t_id
+
+    def select_with_id(self, t_id):
+        for t in self.ready:
+            if t.tid == t_id:
+                return t
 
     def mainloop(self):
-        while self.taskmap:
-            task = self.ready.get()
+        while len(self.ready) > 0:
+            selected_id = self.select_highest_priority_id()
+            task = self.select_with_id(selected_id)
+            self.ready.remove(task)
             try:
-                result = task.run()
+                task.run()
             except StopIteration:
-                self.exit(task)
+                print(f'Odstranujem id = {task.tid}')
                 continue
             self.schedule(task)
 
