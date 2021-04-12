@@ -45,4 +45,36 @@ class Scheduler:
             self.schedule(task)
 
 
+def coroutine1(printstring):
+    print(printstring + ' cast 1')
+    yield
+    print(printstring + ' cast 2')
+    yield
+    print(printstring + ' cast 3')
+    yield
 
+
+def coroutine2(printstring):
+    print(printstring + ' cast 1')
+    yield
+    print(printstring + ' cast 2')
+    yield
+
+
+def coroutine3(printstring):
+    print(printstring + ' cast 1')
+    yield
+    print(printstring + ' cast 2')
+    yield
+    print(printstring + ' cast 3')
+    yield
+    print(printstring + ' cast 4')
+    yield
+
+
+if __name__ == '__main__':
+    sched = Scheduler()
+    sched.new(coroutine1('t1'), 5)
+    sched.new(coroutine2('t2'), 1)
+    sched.new(coroutine3('t3'), 3)
+    sched.mainloop()
