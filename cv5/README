@@ -37,16 +37,16 @@ Riešenie úlohy 2:
             pocet_kucharov = 2
             kapacita_kuchara = 5
             kapacita_hrnca = 13
-            porcie := 0
+            porcie = 0
 
             mutex_kuchari = Mutex()
             mutex_divosi = Mutex()
 
-            plny_hrniec := Semaphore(0)
-            prazdny_hrniec := Semaphore(0)
+            plny_hrniec = Semaphore(0)
+            prazdny_hrniec = Semaphore(0)
 
-            barriera1 := SimpleBarrier()
-            barriera2 := SimpleBarrier()
+            barriera1 = SimpleBarrier()
+            barriera2 = SimpleBarrier()
 
             for id in [0, 1, 2, ..., pocet_divochov]:
                 create_and_run_thread(savage, id)
@@ -56,7 +56,7 @@ Riešenie úlohy 2:
 
         def getServingFromPot(id):
             print("divoch %2d: beriem si porciu", id)
-            porcie := porcie - 1
+            porcie = porcie - 1
 
         def savage(id):
             while True:
