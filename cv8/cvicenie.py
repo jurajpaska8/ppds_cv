@@ -11,6 +11,7 @@ def task(name: str, q: queue.Queue):
             print(f'Task {name} running')
             for x in range(c):
                 total += 1
+                yield
             print(f'Task {name}, total = {total}')
 
 
@@ -19,7 +20,18 @@ if __name__ == '__main__':
     for w in [2, 5, 8, 6]:
         q.put(w)
 
-    tasks = [(task, 'One', q), (task, 'Two', q)]
+    one = task('One', q)
+    two = task('Two', q)
+    tasks = [one, two]
 
-    for t, n, q in tasks:
-        t(n, q)
+    # run
+    done = False
+    while not done:
+        for t in tasks:
+            try:
+                next(t)
+            except StopIteration:
+                tasks.remove(t)
+                print(f"koniec {t}")
+                if len(tasks) == 0:
+                    done = True
