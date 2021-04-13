@@ -1,31 +1,34 @@
 import queue
 
+import time
+
 
 def task(name: str, q: queue.Queue):
     if q.empty():
         print(f'Task {name} done')
     else:
         while not q.empty():
-            c = q.get()
-            total = 0
+            delay = q.get()
             print(f'Task {name} running')
-            for x in range(c):
-                total += 1
-                yield
-            print(f'Task {name}, total = {total}')
+            time_start = time.perf_counter()
+            time.sleep(delay)
+            elapsed = time.perf_counter() - time_start
+            print(f'Task {name}, elapsed time = {elapsed}')
+            yield
 
 
 if __name__ == '__main__':
-    q = queue.Queue()
-    for w in [2, 5, 8, 6]:
-        q.put(w)
+    qu = queue.Queue()
+    for w in [3, 5, 8, 7]:
+        qu.put(w)
 
-    one = task('One', q)
-    two = task('Two', q)
+    one = task('One', qu)
+    two = task('Two', qu)
     tasks = [one, two]
 
     # run
     done = False
+    start_time = time.perf_counter()
     while not done:
         for t in tasks:
             try:
@@ -35,3 +38,5 @@ if __name__ == '__main__':
                 print(f"koniec {t}")
                 if len(tasks) == 0:
                     done = True
+    elapsed = time.perf_counter() - start_time
+    print(f"\nTotal elapsed time: {elapsed:.1f}")
