@@ -1,42 +1,35 @@
-import queue
+import asyncio
 
 import time
 
 
-def task(name: str, q: queue.Queue):
+async def task(name: str, q: asyncio.Queue):
     if q.empty():
         print(f'Task {name} done')
     else:
         while not q.empty():
-            delay = q.get()
+            delay = await q.get()
             print(f'Task {name} running')
             time_start = time.perf_counter()
-            time.sleep(delay)
+            await asyncio.sleep(delay)
             elapsed = time.perf_counter() - time_start
             print(f'Task {name}, elapsed time = {elapsed}')
-            yield
 
 
-if __name__ == '__main__':
-    qu = queue.Queue()
+async def main():
+    qu = asyncio.Queue()
     for w in [3, 5, 8, 7]:
-        qu.put(w)
+        await qu.put(w)
 
     one = task('One', qu)
     two = task('Two', qu)
-    tasks = [one, two]
 
     # run
-    done = False
     start_time = time.perf_counter()
-    while not done:
-        for t in tasks:
-            try:
-                next(t)
-            except StopIteration:
-                tasks.remove(t)
-                print(f"koniec {t}")
-                if len(tasks) == 0:
-                    done = True
+    await asyncio.gather(one, two)
     elapsed = time.perf_counter() - start_time
     print(f"\nTotal elapsed time: {elapsed:.1f}")
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
