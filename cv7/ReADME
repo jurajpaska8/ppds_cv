@@ -1,0 +1,10 @@
+Zadanie:
+Napíšte aplikáciu, ktorá bude využívať N (N>2) koprogramov (pomocou rozšírených generátorov) a na ich striedanie použite vlastný plánovač.
+Na riešenie nepoužite programový kód z odporúčanej literatúry.
+
+Riešenie:
+- nachádza sa v súbore zadanie.py
+- obsahuje plánovač, ktorý vyberá Task na vykonanie na základe jeho priority
+- teda namiesto fronty sa používa obyčajný list
+- task sa vyberie, z listu sa odstráni a pokial nie je vygenerovaná výnimka StopIteration počas behu, tak sa znovu pridá do listu
+- ak je vygenerovaná výnimka tak sa pridanie do listu preskočí a vypíše sa hláška o odstránení tasku
