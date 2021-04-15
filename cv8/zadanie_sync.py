@@ -1,6 +1,3 @@
-"""
-kazda korutina zapise raz za sekundu riadok vo forme [id korutiny, cislo zapisu, cas zapisu, hodnota z pola] do suboru
-"""
 import asyncio
 import time
 
@@ -24,6 +21,9 @@ async def write(tid, shared, afp):
 
 
 async def main():
+    """
+    2 korutiny zapisuju asynchronne do suboru - 1 GB trva cca 2 sekundy
+    """
     async with async_open("text_async.txt", 'w+') as afp:
         shared = Shared()
         a = write(0, shared, afp)
@@ -46,6 +46,9 @@ def write_sync(tid, shared, fp):
 
 
 def main_sync():
+    """
+    2 generatory zapisuju synchronne do suboru - 1 GB trva cca 8 sekund
+    """
     with open("text_sync.txt", 'w+') as fp:
         shared = Shared()
         a = write_sync(0, shared, fp)
