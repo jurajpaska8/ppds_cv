@@ -1,0 +1,23 @@
+Zadanie: Napíšte vlastnú (ľubovoľnú) jednovláknovú aplikáciu v dvoch verziách: synchrónnej a asynchrónnej (pomocou natívnych korutín)
++ testy
+
+Riešenie:
+- v súbore zadanie.py
+Asynchónna časť
+- s pouitím modulu asyncio sa najskôr otvorí súbor
+- vo funkcii main sa vytvoria 2 korutiny a, b
+- tie asynchronne zapisu spolu 10 riadkov po 100 megabytov do súboru
+- výsledne trvanie - približne 2 sekundy
+
+Synchrónna časť
+- otvorenie súboru
+- vo funkcii main sa vytvoria 2 generátory a, b
+- tie si navzájom odovzdávajú riadenie pomocou yield
+- synchrónne zapíšu spolu 10 riadkov po 100 megabytov do súboru
+- výsledne trvanie - približne 8 sekúnd
+
+Poznámka:
+- najskôr som mal v pláne pridať čakanie pred zápisom, ako modelovanie spracovania údajov, pre lepšie demonštrovanie
+asynchrónneho prístupu
+- avšak doba trvania zápisu sa ukázala byť značne menšia aj pri obyčajnom zápise pri použití modulu asyncio
+
