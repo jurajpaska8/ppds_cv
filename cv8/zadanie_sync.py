@@ -18,9 +18,8 @@ async def write(tid, shared, afp):
     while shared.counter < 10:
         print(f'id: {tid}, ctr: {shared.counter}')
         tmp = shared.list.pop(0)
-        await asyncio.sleep(1)
         shared.counter += 1
-        await afp.write(f"id: {tid}: ctr: {shared.counter} time: {time.perf_counter() - time_start :.1f}, val:{tmp}\n")
+        await afp.write(f"id: {tid}, ctr: {shared.counter}\n" + f"{shared.counter - 1}" * 100000000 + "\n")
     print(f'ctr: {shared.counter} time {time.perf_counter() - time_start :.1f}')
 
 
@@ -40,9 +39,8 @@ def write_sync(tid, shared, fp):
     while shared.counter < 10:
         print(f'id: {tid}, ctr: {shared.counter}')
         tmp = shared.list.pop(0)
-        time.sleep(1)
         shared.counter += 1
-        fp.write(f"id: {tid}: ctr: {shared.counter} time: {time.perf_counter() - time_start :.1f}, val:{tmp}\n")
+        fp.write(f"id: {tid}, ctr: {shared.counter}\n" + f"{shared.counter - 1}"*100000000 + "\n")
         yield
     print(f'ctr: {shared.counter} time {time.perf_counter() - time_start :.1f}')
 
@@ -69,5 +67,5 @@ def main_sync():
 
 
 if __name__ == '__main__':
-    #asyncio.run(main())
+    asyncio.run(main())
     main_sync()
