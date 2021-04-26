@@ -1,0 +1,7 @@
+Subor mycuda.py obsahuje funkcie:
+1) change_pixels
+- ide o jednoduchu funkciu ktora na grafickej karte vykona upravu pixelov obrazku. Vykonany je vypocet prenasobenia RGB hodnot konstantou 0.1
+takze vysledkom pocitania je stmavnuty obrazok
+2) find_number
+- ide o jednoduchu funkciu, ktora prehladava pole, v ktorom hlada zvolene cislo. Ak cislo najde, zapise na jeho poziciu hodnotu -1 a
+vypise na akej pozicii sa hodnota nachadzala. Tento vypis je vhodny len na ladiace ucely
