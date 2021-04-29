@@ -1,0 +1,20 @@
+Cvicenie 10:
+- ulohou bolo prerobit zadanie 9 za pouzitia streamov a vykonat porovnanie pomocou udalosti
+- na vypracovanie tejto ulohy vsak bol pouzity emulator, takze porovnanie za pouzitia udalosti nebolo mozne
+- preto na porovnanie s ulohou 9 bol pouzity perf_counter z modulu time
+
+Vypracovanie:
+- na prepocitanie hodnoty pixelov boli pouzite prudy, ktore dokazali ten isty kernel spustat konkurentne,
+a preto mohli byt presuny dat na/z GPU a spustanie kernelov spustane asynchronne
+- zmenena bola aj struktura gridu v porovnani s ulohou 9
+- namiesto dvojrozmernej mriezky kernel pocital s jednorozmernou - konkretnym riadkom pixelov obrazku
+- preto boli prepocitane optimalne hodnoty pre obrazok 64x64 pixelov
+- bolo pouzitych 64 streamov - jeden riadok obrazku v jednom streame
+- grid v kazdom kernely pozostaval z 2 blokov po 32 vlakien (teda 2 cele warpy)
+- bloky boli zvolene jednorozmerne, kvoli jednoduchosti prekopirovania dat na gpu - po riadkoch
+
+Vysledok:
+- na emulatori nebolo vidiet ziadne zrychlenie - pri pouziti streamov a aj bez pouzitia streamov sa taketo
+spracovanie obrazku s 64x64 pixelmi spracovavalo priblizni 1.8 sekundy
+- usporu prinieslo az vynechanie testovania hranic v kerneli, kedze struktura gridu bola vybrana optimalne
+- vysledny cas pri pouziti optimalneho gridu a streamov prinieslo usporu na case a to na hodnotu 1.5 sekundy
